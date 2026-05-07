@@ -172,9 +172,17 @@ function Import-AzdLoginContext {
   # Remove stale loaded module so Import-Module honours -MinimumVersion
   $loadedAzAccounts = Get-Module -Name Az.Accounts -ErrorAction SilentlyContinue
   if ($loadedAzAccounts -and $loadedAzAccounts.Version -lt $requiredAzAccountsVersion) {
-    Remove-Module Az.Accounts -Force -ErrorAction Stop
+    Remove-Module Az.Accounts -Force -ErrorAction SilentlyContinue
   }
-  Import-Module Az.Accounts -MinimumVersion $requiredAzAccountsVersion -Force -ErrorAction Stop | Out-Null
+  try {
+    Import-Module Az.Accounts -MinimumVersion $requiredAzAccountsVersion -Force -ErrorAction Stop | Out-Null
+  } catch {
+    if ($_.Exception.Message -match 'Assembly with same name is already loaded') {
+      if (Get-Module -Name Az.Accounts -ErrorAction SilentlyContinue) {
+        Write-Host "Az.Accounts already loaded in session; skipping re-import." -ForegroundColor DarkGray
+      } else { throw }
+    } else { throw }
+  }
 
   $connectParams = @{
     AccessToken    = $rmToken.accessToken

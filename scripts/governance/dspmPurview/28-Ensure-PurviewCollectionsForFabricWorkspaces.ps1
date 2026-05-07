@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 $ensureContextPath = Join-Path $PSScriptRoot "..\..\common\Ensure-AzContext.ps1"
 . $ensureContextPath
-Import-Module Az.Accounts -ErrorAction Stop
+Import-AzModuleSafe Az.Accounts
 Ensure-AzContext -TenantId $spec.tenantId -SubscriptionId $spec.subscriptionId
 
 if(-not $spec.purviewAccount){

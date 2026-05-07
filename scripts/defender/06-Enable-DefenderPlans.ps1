@@ -20,7 +20,7 @@ $ErrorActionPreference='Stop'
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 $ensureContextPath = Join-Path $PSScriptRoot "..\common\Ensure-AzContext.ps1"
 . $ensureContextPath
-Import-Module Az.Accounts, Az.Security -ErrorAction Stop
+Import-AzModuleSafe Az.Accounts, Az.Security
 Ensure-AzContext -TenantId $spec.tenantId -SubscriptionId $spec.subscriptionId
 $plans = $spec.defenderForAI.enableDefenderForCloudPlans
 if(!$plans){ Write-Host "No Defender plans in spec" -ForegroundColor DarkGray; exit 0 }
