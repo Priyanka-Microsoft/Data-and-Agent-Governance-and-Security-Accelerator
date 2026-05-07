@@ -89,22 +89,12 @@ function Initialize-AutomationEnvironment {
     }
   }
 
-  # Pre-import all Az modules used by child scripts so their Import-Module calls are no-ops.
   # On GitHub Actions runners, Az assemblies are pre-loaded and re-importing a different
-  # version triggers 'Assembly with same name is already loaded'. Importing here once with
-  # safe error handling avoids touching every individual script.
-  $allAzModules = @('Az.Accounts','Az.Resources','Az.Monitor','Az.OperationalInsights','Az.Purview','Az.Security','Az.Storage','Az.KeyVault')
-  foreach ($mod in $allAzModules) {
-    try {
-      Import-Module $mod -ErrorAction Stop | Out-Null
-    } catch {
-      if ($_.Exception.Message -match 'Assembly with same name is already loaded') {
-        if (Get-Module -Name $mod -ErrorAction SilentlyContinue) {
-          Write-Host "$mod already loaded in session; skipping re-import." -ForegroundColor DarkGray
-        } else { throw }
-      } else { throw }
-    }
-  }
+  # version triggers 'Assembly with same name is already loaded'. Import-AzModuleSafe wraps
+  # Import-Module with safe error handling.
+  $importSafePath = Join-Path $PSScriptRoot "scripts/common/Import-AzModuleSafe.ps1"
+  . $importSafePath
+  Import-AzModuleSafe Az.Accounts
 }
 
 function Test-HasFabricLakehouseSensitivityLabels {
