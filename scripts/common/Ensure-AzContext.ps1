@@ -1,3 +1,6 @@
+$_importSafePath = Join-Path $PSScriptRoot 'Import-AzModuleSafe.ps1'
+. $_importSafePath
+
 function Test-AzContextMatch {
   param(
     [object]$Context,
@@ -72,13 +75,7 @@ function Ensure-AzContext {
     [Parameter(Mandatory=$true)][string]$TenantId,
     [Parameter(Mandatory=$true)][string]$SubscriptionId
   )
-  try {
-    Import-Module Az.Accounts -ErrorAction Stop
-  } catch {
-    if ($_.Exception.Message -match 'Assembly with same name is already loaded' -and (Get-Module -Name Az.Accounts)) {
-      Write-Verbose 'Az.Accounts already loaded; skipping.'
-    } else { throw }
-  }
+  Import-AzModuleSafe Az.Accounts
   $current = Get-AzContext -ErrorAction SilentlyContinue
   if(Test-AzContextMatch -Context $current -TenantId $TenantId -SubscriptionId $SubscriptionId){
     return

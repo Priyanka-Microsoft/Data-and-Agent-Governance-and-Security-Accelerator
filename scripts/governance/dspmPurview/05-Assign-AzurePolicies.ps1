@@ -4,7 +4,7 @@ $ErrorActionPreference='Stop'
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 $ensureContextPath = Join-Path $PSScriptRoot "..\..\common\Ensure-AzContext.ps1"
 . $ensureContextPath
-Import-Module Az.Accounts, Az.Resources -ErrorAction Stop
+Import-AzModuleSafe Az.Accounts, Az.Resources
 Ensure-AzContext -TenantId $spec.tenantId -SubscriptionId $spec.subscriptionId
 $hasAzurePolicies = $spec.PSObject.Properties.Name -contains 'azurePolicies'
 if(-not $hasAzurePolicies){ Write-Host "No azurePolicies in spec. Skipping policy assignments." -ForegroundColor Yellow; exit 0 }

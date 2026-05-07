@@ -7,7 +7,9 @@ if(-not $spec.activityExport -or -not $spec.activityExport.contentTypes -or -not
 	exit 0
 }
 
-Import-Module Az.Accounts -ErrorAction Stop
+$_importSafePath = Join-Path $PSScriptRoot "..\..\common\Import-AzModuleSafe.ps1"
+. $_importSafePath
+Import-AzModuleSafe Az.Accounts
 $token = (Get-AzAccessToken -ResourceUrl "https://manage.office.com").Token
 $h = @{ Authorization = "Bearer $token" }
 $base = "https://manage.office.com/api/v1.0/$($spec.tenantId)/activity/feed/subscriptions"

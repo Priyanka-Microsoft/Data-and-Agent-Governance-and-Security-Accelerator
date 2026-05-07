@@ -89,18 +89,11 @@ function Initialize-AutomationEnvironment {
     }
   }
 
-  # Pre-import all Az modules so child scripts' Import-Module calls become no-ops.
-  # On GitHub Actions runners, Az assemblies are pre-loaded; re-importing a different
-  # version triggers 'Assembly with same name is already loaded'.
-  foreach ($mod in @('Az.Accounts','Az.Resources','Az.Monitor','Az.OperationalInsights','Az.Purview','Az.Security','Az.Storage','Az.KeyVault')) {
-    try {
-      Import-Module $mod -ErrorAction Stop | Out-Null
-    } catch {
-      if ($_.Exception.Message -match 'Assembly with same name is already loaded' -and (Get-Module -Name $mod)) {
-        Write-Verbose "$mod already loaded; skipping."
-      } else { throw }
-    }
-  }
+  # Dot-source Import-AzModuleSafe so child scripts in this session can use it.
+  # On GitHub Actions runners, Az assemblies are pre-loaded and re-importing a
+  # different version triggers 'Assembly with same name is already loaded'.
+  . (Join-Path $PSScriptRoot "scripts/common/Import-AzModuleSafe.ps1")
+  Import-AzModuleSafe Az.Accounts
 }
 
 function Test-HasFabricLakehouseSensitivityLabels {
