@@ -89,7 +89,20 @@ function Initialize-AutomationEnvironment {
     }
   }
 
-  Import-Module Az.Accounts -ErrorAction Stop | Out-Null
+  try {
+    Import-Module Az.Accounts -ErrorAction Stop | Out-Null
+  } catch {
+    if ($_.Exception.Message -match 'Assembly with same name is already loaded') {
+      $loaded = Get-Module -Name Az.Accounts -ErrorAction SilentlyContinue
+      if ($loaded) {
+        Write-Host "Az.Accounts $($loaded.Version) already loaded in session; skipping re-import." -ForegroundColor DarkGray
+      } else {
+        throw "Az.Accounts assembly conflict and module not available: $($_.Exception.Message)"
+      }
+    } else {
+      throw
+    }
+  }
 }
 
 function Test-HasFabricLakehouseSensitivityLabels {
