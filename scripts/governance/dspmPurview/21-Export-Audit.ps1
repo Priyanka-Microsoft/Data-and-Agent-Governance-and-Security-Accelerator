@@ -2,9 +2,7 @@
 param([Parameter(Mandatory=$true)][string]$SpecPath)
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 if(-not $spec.activityExport){ Write-Host "No activityExport block in spec. Skipping audit export." -ForegroundColor Yellow; exit 0 }
-$_importSafePath = Join-Path $PSScriptRoot "..\..\common\Import-AzModuleSafe.ps1"
-. $_importSafePath
-Import-AzModuleSafe Az.Accounts
+Import-Module Az.Accounts -ErrorAction Stop
 $outputPath = $spec.activityExport.outputPath
 if([string]::IsNullOrWhiteSpace($outputPath)){ Write-Host "activityExport.outputPath missing. Skipping audit export." -ForegroundColor Yellow; exit 0 }
 $null = New-Item -ItemType Directory -Path $outputPath -Force

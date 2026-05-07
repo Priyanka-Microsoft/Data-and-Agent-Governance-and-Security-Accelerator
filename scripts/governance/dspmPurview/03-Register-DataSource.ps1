@@ -3,7 +3,7 @@ param([Parameter(Mandatory=$true)][string]$SpecPath)
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 $ensureContextPath = Join-Path $PSScriptRoot "..\..\common\Ensure-AzContext.ps1"
 . $ensureContextPath
-Import-AzModuleSafe Az.Accounts
+Import-Module Az.Accounts -ErrorAction Stop
 Ensure-AzContext -TenantId $spec.tenantId -SubscriptionId $spec.subscriptionId
 function Get-PvToken { (Get-AzAccessToken -ResourceUrl "https://purview.azure.net").Token }
 function PvInvoke([string]$m,[string]$p,[object]$b) {

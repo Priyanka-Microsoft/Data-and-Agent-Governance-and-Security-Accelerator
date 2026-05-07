@@ -4,7 +4,7 @@ $ErrorActionPreference='Stop'
 $spec = Get-Content $SpecPath -Raw | ConvertFrom-Json
 $ensureContextPath = Join-Path $PSScriptRoot "..\common\Ensure-AzContext.ps1"
 . $ensureContextPath
-Import-AzModuleSafe Az.Accounts, Az.Monitor, Az.Resources, Az.OperationalInsights
+Import-Module Az.Accounts, Az.Monitor, Az.Resources, Az.OperationalInsights -ErrorAction Stop
 Ensure-AzContext -TenantId $spec.tenantId -SubscriptionId $spec.subscriptionId
 try {
   Update-AzConfig -DisplayBreakingChangeWarning $false -Scope Process -ErrorAction Stop | Out-Null
