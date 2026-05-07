@@ -89,7 +89,20 @@ function Initialize-AutomationEnvironment {
     }
   }
 
-  Import-Module Az.Accounts -ErrorAction Stop | Out-Null
+  # Pre-import all Az modules so child scripts' Import-Module calls are no-ops.
+  # On GitHub Actions runners, Az assemblies may already be loaded at a different
+  # version; catch and continue when the module is already usable.
+  foreach ($module in $moduleSpecs) {
+    if ($module.Name -notlike 'Az.*') { continue }
+    try {
+      Import-Module $module.Name -ErrorAction Stop | Out-Null
+    } catch {
+      if ($_.Exception.Message -match 'Assembly with same name is already loaded') {
+        if (Get-Module -Name $module.Name -ErrorAction SilentlyContinue) { continue }
+      }
+      throw
+    }
+  }
 }
 
 function Test-HasFabricLakehouseSensitivityLabels {
